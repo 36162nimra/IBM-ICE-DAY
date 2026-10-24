@@ -1,0 +1,1060 @@
+{
+  "name": "atlas-api",
+  "modules": [
+    {
+      "id": "atlas",
+      "name": "atlas",
+      "file": "atlas/__init__.py",
+      "lines": 1,
+      "docstring": "Atlas: a small inventory service for the AutoDoc demo.",
+      "source": "\"\"\"Atlas: a small inventory service for the AutoDoc demo.\"\"\"\r\n"
+    },
+    {
+      "id": "atlas.main",
+      "name": "atlas.main",
+      "file": "atlas/main.py",
+      "lines": 11,
+      "docstring": "HTTP application and service health.",
+      "source": "\"\"\"HTTP application and service health.\"\"\"\nfrom fastapi import FastAPI\nfrom .routes import router\n\napp = FastAPI(title=\"Atlas inventory\")\napp.include_router(router, prefix=\"/api/v1\")\n\n@app.get(\"/health\")\ndef health() -> dict:\n    \"\"\"Return the service health status.\"\"\"\n    return {\"status\": \"ok\"}\r\n"
+    },
+    {
+      "id": "atlas.models",
+      "name": "atlas.models",
+      "file": "atlas/models.py",
+      "lines": 8,
+      "docstring": "Domain models for the inventory service.",
+      "source": "\"\"\"Domain models for the inventory service.\"\"\"\nfrom pydantic import BaseModel\n\nclass Item(BaseModel):\n    \"\"\"An inventory item with its public display name.\"\"\"\n    id: int\n    name: str\n    quantity: int = 0\r\n"
+    },
+    {
+      "id": "atlas.repository",
+      "name": "atlas.repository",
+      "file": "atlas/repository.py",
+      "lines": 11,
+      "docstring": "In-memory repository; imports deliberately demonstrate a cycle.",
+      "source": "\"\"\"In-memory repository; imports deliberately demonstrate a cycle.\"\"\"\nfrom .models import Item\nfrom .service import normalize_name\n\ndef fetch_all() -> list[Item]:\n    \"\"\"Return a sample inventory record.\"\"\"\n    return [Item(id=1, name=\"Field notebook\", quantity=12)]\n\ndef persist(item: Item) -> Item:\n    item.name = normalize_name(item.name)\n    return item\r\n"
+    },
+    {
+      "id": "atlas.routes",
+      "name": "atlas.routes",
+      "file": "atlas/routes.py",
+      "lines": 25,
+      "docstring": "Inventory routes exposed by the Atlas API.",
+      "source": "\"\"\"Inventory routes exposed by the Atlas API.\"\"\"\nfrom fastapi import APIRouter\nfrom .models import Item\nfrom .service import list_items, find_item, save_item\n\nrouter = APIRouter(prefix=\"/items\")\n\n@router.get(\"/\", response_model=list[Item])\ndef get_items(limit: int = 20) -> list[Item]:\n    \"\"\"List inventory items with an optional result limit.\"\"\"\n    return list_items(limit)\n\n@router.get(\"/{item_id}\", response_model=Item)\ndef get_item(item_id: int) -> Item:\n    \"\"\"Look up one inventory item by its identifier.\"\"\"\n    return find_item(item_id)\n\n@router.post(\"/\", response_model=Item, status_code=201)\nasync def create_item(item: Item) -> Item:\n    \"\"\"Create a new item and return the saved record.\"\"\"\n    return save_item(item)\n\n@router.delete(\"/{item_id}\", status_code=204)\ndef delete_item(item_id: int):\n    pass\r\n"
+    },
+    {
+      "id": "atlas.security_examples",
+      "name": "atlas.security_examples",
+      "file": "atlas/security_examples.py",
+      "lines": 11,
+      "docstring": "Synthetic unsafe-code patterns used to demonstrate the static security panel.",
+      "source": "\"\"\"Synthetic unsafe-code patterns used to demonstrate the static security panel.\"\"\"\n\n\ndef evaluate_expression(expression: str):\n    \"\"\"Illustrate a dynamic evaluation pattern; the demo analyzer never calls this.\"\"\"\n    return eval(expression)\n\n\ndef find_item(cursor, name: str):\n    \"\"\"Illustrate SQL interpolation; the demo analyzer never calls this.\"\"\"\n    cursor.execute(f\"SELECT * FROM items WHERE name = '{name}'\")\r\n"
+    },
+    {
+      "id": "atlas.service",
+      "name": "atlas.service",
+      "file": "atlas/service.py",
+      "lines": 17,
+      "docstring": "Inventory operations. The circular import is intentional for the demo.",
+      "source": "\"\"\"Inventory operations. The circular import is intentional for the demo.\"\"\"\nfrom .models import Item\nfrom .repository import fetch_all, persist\n\ndef list_items(limit: int) -> list[Item]:\n    \"\"\"Return at most limit items.\"\"\"\n    return fetch_all()[:limit]\n\ndef find_item(item_id: int) -> Item:\n    \"\"\"Find an item in the local inventory.\"\"\"\n    return next(item for item in fetch_all() if item.id == item_id)\n\ndef save_item(item: Item) -> Item:\n    return persist(item)\n\ndef normalize_name(name: str) -> str:\n    return name.strip()\r\n"
+    }
+  ],
+  "symbols": [
+    {
+      "id": "atlas.main:health",
+      "name": "health",
+      "module": "atlas.main",
+      "kind": "function",
+      "signature": "health() -> dict",
+      "docstring": "Return the service health status.",
+      "file": "atlas/main.py",
+      "line": 9,
+      "parameters": [],
+      "return_annotation": "dict",
+      "return_expressions": [
+        {
+          "line": 11,
+          "expression": "{'status': 'ok'}"
+        }
+      ],
+      "decorators": [
+        "app.get('/health')"
+      ],
+      "bases": [],
+      "imports": [
+        {
+          "name": "fastapi",
+          "line": 2
+        },
+        {
+          "name": "fastapi.FastAPI",
+          "line": 2
+        },
+        {
+          "name": "atlas.routes",
+          "line": 3
+        },
+        {
+          "name": "atlas.routes.router",
+          "line": 3
+        }
+      ]
+    },
+    {
+      "id": "atlas.models:Item",
+      "name": "Item",
+      "module": "atlas.models",
+      "kind": "class",
+      "signature": "Item",
+      "docstring": "An inventory item with its public display name.",
+      "file": "atlas/models.py",
+      "line": 4,
+      "parameters": [],
+      "return_annotation": "",
+      "return_expressions": [],
+      "decorators": [],
+      "bases": [
+        "BaseModel"
+      ],
+      "imports": [
+        {
+          "name": "pydantic",
+          "line": 2
+        },
+        {
+          "name": "pydantic.BaseModel",
+          "line": 2
+        }
+      ]
+    },
+    {
+      "id": "atlas.repository:fetch_all",
+      "name": "fetch_all",
+      "module": "atlas.repository",
+      "kind": "function",
+      "signature": "fetch_all() -> list[Item]",
+      "docstring": "Return a sample inventory record.",
+      "file": "atlas/repository.py",
+      "line": 5,
+      "parameters": [],
+      "return_annotation": "list[Item]",
+      "return_expressions": [
+        {
+          "line": 7,
+          "expression": "[Item(id=1, name='Field notebook', quantity=12)]"
+        }
+      ],
+      "decorators": [],
+      "bases": [],
+      "imports": [
+        {
+          "name": "atlas.models",
+          "line": 2
+        },
+        {
+          "name": "atlas.models.Item",
+          "line": 2
+        },
+        {
+          "name": "atlas.service",
+          "line": 3
+        },
+        {
+          "name": "atlas.service.normalize_name",
+          "line": 3
+        }
+      ]
+    },
+    {
+      "id": "atlas.repository:persist",
+      "name": "persist",
+      "module": "atlas.repository",
+      "kind": "function",
+      "signature": "persist(item: Item) -> Item",
+      "docstring": "",
+      "file": "atlas/repository.py",
+      "line": 9,
+      "parameters": [
+        {
+          "name": "item",
+          "kind": "positional_or_keyword",
+          "annotation": "Item",
+          "default": null
+        }
+      ],
+      "return_annotation": "Item",
+      "return_expressions": [
+        {
+          "line": 11,
+          "expression": "item"
+        }
+      ],
+      "decorators": [],
+      "bases": [],
+      "imports": [
+        {
+          "name": "atlas.models",
+          "line": 2
+        },
+        {
+          "name": "atlas.models.Item",
+          "line": 2
+        },
+        {
+          "name": "atlas.service",
+          "line": 3
+        },
+        {
+          "name": "atlas.service.normalize_name",
+          "line": 3
+        }
+      ]
+    },
+    {
+      "id": "atlas.routes:get_items",
+      "name": "get_items",
+      "module": "atlas.routes",
+      "kind": "function",
+      "signature": "get_items(limit: int=20) -> list[Item]",
+      "docstring": "List inventory items with an optional result limit.",
+      "file": "atlas/routes.py",
+      "line": 9,
+      "parameters": [
+        {
+          "name": "limit",
+          "kind": "positional_or_keyword",
+          "annotation": "int",
+          "default": "20"
+        }
+      ],
+      "return_annotation": "list[Item]",
+      "return_expressions": [
+        {
+          "line": 11,
+          "expression": "list_items(limit)"
+        }
+      ],
+      "decorators": [
+        "router.get('/', response_model=list[Item])"
+      ],
+      "bases": [],
+      "imports": [
+        {
+          "name": "fastapi",
+          "line": 2
+        },
+        {
+          "name": "fastapi.APIRouter",
+          "line": 2
+        },
+        {
+          "name": "atlas.models",
+          "line": 3
+        },
+        {
+          "name": "atlas.models.Item",
+          "line": 3
+        },
+        {
+          "name": "atlas.service",
+          "line": 4
+        },
+        {
+          "name": "atlas.service.list_items",
+          "line": 4
+        },
+        {
+          "name": "atlas.service.find_item",
+          "line": 4
+        },
+        {
+          "name": "atlas.service.save_item",
+          "line": 4
+        }
+      ]
+    },
+    {
+      "id": "atlas.routes:get_item",
+      "name": "get_item",
+      "module": "atlas.routes",
+      "kind": "function",
+      "signature": "get_item(item_id: int) -> Item",
+      "docstring": "Look up one inventory item by its identifier.",
+      "file": "atlas/routes.py",
+      "line": 14,
+      "parameters": [
+        {
+          "name": "item_id",
+          "kind": "positional_or_keyword",
+          "annotation": "int",
+          "default": null
+        }
+      ],
+      "return_annotation": "Item",
+      "return_expressions": [
+        {
+          "line": 16,
+          "expression": "find_item(item_id)"
+        }
+      ],
+      "decorators": [
+        "router.get('/{item_id}', response_model=Item)"
+      ],
+      "bases": [],
+      "imports": [
+        {
+          "name": "fastapi",
+          "line": 2
+        },
+        {
+          "name": "fastapi.APIRouter",
+          "line": 2
+        },
+        {
+          "name": "atlas.models",
+          "line": 3
+        },
+        {
+          "name": "atlas.models.Item",
+          "line": 3
+        },
+        {
+          "name": "atlas.service",
+          "line": 4
+        },
+        {
+          "name": "atlas.service.list_items",
+          "line": 4
+        },
+        {
+          "name": "atlas.service.find_item",
+          "line": 4
+        },
+        {
+          "name": "atlas.service.save_item",
+          "line": 4
+        }
+      ]
+    },
+    {
+      "id": "atlas.routes:create_item",
+      "name": "create_item",
+      "module": "atlas.routes",
+      "kind": "function",
+      "signature": "create_item(item: Item) -> Item",
+      "docstring": "Create a new item and return the saved record.",
+      "file": "atlas/routes.py",
+      "line": 19,
+      "parameters": [
+        {
+          "name": "item",
+          "kind": "positional_or_keyword",
+          "annotation": "Item",
+          "default": null
+        }
+      ],
+      "return_annotation": "Item",
+      "return_expressions": [
+        {
+          "line": 21,
+          "expression": "save_item(item)"
+        }
+      ],
+      "decorators": [
+        "router.post('/', response_model=Item, status_code=201)"
+      ],
+      "bases": [],
+      "imports": [
+        {
+          "name": "fastapi",
+          "line": 2
+        },
+        {
+          "name": "fastapi.APIRouter",
+          "line": 2
+        },
+        {
+          "name": "atlas.models",
+          "line": 3
+        },
+        {
+          "name": "atlas.models.Item",
+          "line": 3
+        },
+        {
+          "name": "atlas.service",
+          "line": 4
+        },
+        {
+          "name": "atlas.service.list_items",
+          "line": 4
+        },
+        {
+          "name": "atlas.service.find_item",
+          "line": 4
+        },
+        {
+          "name": "atlas.service.save_item",
+          "line": 4
+        }
+      ]
+    },
+    {
+      "id": "atlas.routes:delete_item",
+      "name": "delete_item",
+      "module": "atlas.routes",
+      "kind": "function",
+      "signature": "delete_item(item_id: int)",
+      "docstring": "",
+      "file": "atlas/routes.py",
+      "line": 24,
+      "parameters": [
+        {
+          "name": "item_id",
+          "kind": "positional_or_keyword",
+          "annotation": "int",
+          "default": null
+        }
+      ],
+      "return_annotation": "",
+      "return_expressions": [],
+      "decorators": [
+        "router.delete('/{item_id}', status_code=204)"
+      ],
+      "bases": [],
+      "imports": [
+        {
+          "name": "fastapi",
+          "line": 2
+        },
+        {
+          "name": "fastapi.APIRouter",
+          "line": 2
+        },
+        {
+          "name": "atlas.models",
+          "line": 3
+        },
+        {
+          "name": "atlas.models.Item",
+          "line": 3
+        },
+        {
+          "name": "atlas.service",
+          "line": 4
+        },
+        {
+          "name": "atlas.service.list_items",
+          "line": 4
+        },
+        {
+          "name": "atlas.service.find_item",
+          "line": 4
+        },
+        {
+          "name": "atlas.service.save_item",
+          "line": 4
+        }
+      ]
+    },
+    {
+      "id": "atlas.security_examples:evaluate_expression",
+      "name": "evaluate_expression",
+      "module": "atlas.security_examples",
+      "kind": "function",
+      "signature": "evaluate_expression(expression: str)",
+      "docstring": "Illustrate a dynamic evaluation pattern; the demo analyzer never calls this.",
+      "file": "atlas/security_examples.py",
+      "line": 4,
+      "parameters": [
+        {
+          "name": "expression",
+          "kind": "positional_or_keyword",
+          "annotation": "str",
+          "default": null
+        }
+      ],
+      "return_annotation": "",
+      "return_expressions": [
+        {
+          "line": 6,
+          "expression": "eval(expression)"
+        }
+      ],
+      "decorators": [],
+      "bases": [],
+      "imports": []
+    },
+    {
+      "id": "atlas.security_examples:find_item",
+      "name": "find_item",
+      "module": "atlas.security_examples",
+      "kind": "function",
+      "signature": "find_item(cursor, name: str)",
+      "docstring": "Illustrate SQL interpolation; the demo analyzer never calls this.",
+      "file": "atlas/security_examples.py",
+      "line": 9,
+      "parameters": [
+        {
+          "name": "cursor",
+          "kind": "positional_or_keyword",
+          "annotation": "",
+          "default": null
+        },
+        {
+          "name": "name",
+          "kind": "positional_or_keyword",
+          "annotation": "str",
+          "default": null
+        }
+      ],
+      "return_annotation": "",
+      "return_expressions": [],
+      "decorators": [],
+      "bases": [],
+      "imports": []
+    },
+    {
+      "id": "atlas.service:list_items",
+      "name": "list_items",
+      "module": "atlas.service",
+      "kind": "function",
+      "signature": "list_items(limit: int) -> list[Item]",
+      "docstring": "Return at most limit items.",
+      "file": "atlas/service.py",
+      "line": 5,
+      "parameters": [
+        {
+          "name": "limit",
+          "kind": "positional_or_keyword",
+          "annotation": "int",
+          "default": null
+        }
+      ],
+      "return_annotation": "list[Item]",
+      "return_expressions": [
+        {
+          "line": 7,
+          "expression": "fetch_all()[:limit]"
+        }
+      ],
+      "decorators": [],
+      "bases": [],
+      "imports": [
+        {
+          "name": "atlas.models",
+          "line": 2
+        },
+        {
+          "name": "atlas.models.Item",
+          "line": 2
+        },
+        {
+          "name": "atlas.repository",
+          "line": 3
+        },
+        {
+          "name": "atlas.repository.fetch_all",
+          "line": 3
+        },
+        {
+          "name": "atlas.repository.persist",
+          "line": 3
+        }
+      ]
+    },
+    {
+      "id": "atlas.service:find_item",
+      "name": "find_item",
+      "module": "atlas.service",
+      "kind": "function",
+      "signature": "find_item(item_id: int) -> Item",
+      "docstring": "Find an item in the local inventory.",
+      "file": "atlas/service.py",
+      "line": 9,
+      "parameters": [
+        {
+          "name": "item_id",
+          "kind": "positional_or_keyword",
+          "annotation": "int",
+          "default": null
+        }
+      ],
+      "return_annotation": "Item",
+      "return_expressions": [
+        {
+          "line": 11,
+          "expression": "next((item for item in fetch_all() if item.id == item_id))"
+        }
+      ],
+      "decorators": [],
+      "bases": [],
+      "imports": [
+        {
+          "name": "atlas.models",
+          "line": 2
+        },
+        {
+          "name": "atlas.models.Item",
+          "line": 2
+        },
+        {
+          "name": "atlas.repository",
+          "line": 3
+        },
+        {
+          "name": "atlas.repository.fetch_all",
+          "line": 3
+        },
+        {
+          "name": "atlas.repository.persist",
+          "line": 3
+        }
+      ]
+    },
+    {
+      "id": "atlas.service:save_item",
+      "name": "save_item",
+      "module": "atlas.service",
+      "kind": "function",
+      "signature": "save_item(item: Item) -> Item",
+      "docstring": "",
+      "file": "atlas/service.py",
+      "line": 13,
+      "parameters": [
+        {
+          "name": "item",
+          "kind": "positional_or_keyword",
+          "annotation": "Item",
+          "default": null
+        }
+      ],
+      "return_annotation": "Item",
+      "return_expressions": [
+        {
+          "line": 14,
+          "expression": "persist(item)"
+        }
+      ],
+      "decorators": [],
+      "bases": [],
+      "imports": [
+        {
+          "name": "atlas.models",
+          "line": 2
+        },
+        {
+          "name": "atlas.models.Item",
+          "line": 2
+        },
+        {
+          "name": "atlas.repository",
+          "line": 3
+        },
+        {
+          "name": "atlas.repository.fetch_all",
+          "line": 3
+        },
+        {
+          "name": "atlas.repository.persist",
+          "line": 3
+        }
+      ]
+    },
+    {
+      "id": "atlas.service:normalize_name",
+      "name": "normalize_name",
+      "module": "atlas.service",
+      "kind": "function",
+      "signature": "normalize_name(name: str) -> str",
+      "docstring": "",
+      "file": "atlas/service.py",
+      "line": 16,
+      "parameters": [
+        {
+          "name": "name",
+          "kind": "positional_or_keyword",
+          "annotation": "str",
+          "default": null
+        }
+      ],
+      "return_annotation": "str",
+      "return_expressions": [
+        {
+          "line": 17,
+          "expression": "name.strip()"
+        }
+      ],
+      "decorators": [],
+      "bases": [],
+      "imports": [
+        {
+          "name": "atlas.models",
+          "line": 2
+        },
+        {
+          "name": "atlas.models.Item",
+          "line": 2
+        },
+        {
+          "name": "atlas.repository",
+          "line": 3
+        },
+        {
+          "name": "atlas.repository.fetch_all",
+          "line": 3
+        },
+        {
+          "name": "atlas.repository.persist",
+          "line": 3
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "source": "atlas.main",
+      "target": "atlas.routes",
+      "kind": "import",
+      "file": "atlas/main.py",
+      "line": 3,
+      "locations": [
+        {
+          "file": "atlas/main.py",
+          "line": 3
+        }
+      ]
+    },
+    {
+      "source": "atlas.repository",
+      "target": "atlas.models",
+      "kind": "import",
+      "file": "atlas/repository.py",
+      "line": 2,
+      "locations": [
+        {
+          "file": "atlas/repository.py",
+          "line": 2
+        }
+      ]
+    },
+    {
+      "source": "atlas.repository",
+      "target": "atlas.service",
+      "kind": "import",
+      "file": "atlas/repository.py",
+      "line": 3,
+      "locations": [
+        {
+          "file": "atlas/repository.py",
+          "line": 3
+        }
+      ]
+    },
+    {
+      "source": "atlas.routes",
+      "target": "atlas.models",
+      "kind": "import",
+      "file": "atlas/routes.py",
+      "line": 3,
+      "locations": [
+        {
+          "file": "atlas/routes.py",
+          "line": 3
+        }
+      ]
+    },
+    {
+      "source": "atlas.routes",
+      "target": "atlas.service",
+      "kind": "import",
+      "file": "atlas/routes.py",
+      "line": 4,
+      "locations": [
+        {
+          "file": "atlas/routes.py",
+          "line": 4
+        }
+      ]
+    },
+    {
+      "source": "atlas.service",
+      "target": "atlas.models",
+      "kind": "import",
+      "file": "atlas/service.py",
+      "line": 2,
+      "locations": [
+        {
+          "file": "atlas/service.py",
+          "line": 2
+        }
+      ]
+    },
+    {
+      "source": "atlas.service",
+      "target": "atlas.repository",
+      "kind": "import",
+      "file": "atlas/service.py",
+      "line": 3,
+      "locations": [
+        {
+          "file": "atlas/service.py",
+          "line": 3
+        }
+      ]
+    },
+    {
+      "source": "atlas.repository:fetch_all",
+      "target": "atlas.models:Item",
+      "kind": "call",
+      "file": "atlas/repository.py",
+      "line": 7,
+      "locations": [
+        {
+          "file": "atlas/repository.py",
+          "line": 7
+        }
+      ]
+    },
+    {
+      "source": "atlas.repository:persist",
+      "target": "atlas.service:normalize_name",
+      "kind": "call",
+      "file": "atlas/repository.py",
+      "line": 10,
+      "locations": [
+        {
+          "file": "atlas/repository.py",
+          "line": 10
+        }
+      ]
+    },
+    {
+      "source": "atlas.routes:get_items",
+      "target": "atlas.service:list_items",
+      "kind": "call",
+      "file": "atlas/routes.py",
+      "line": 11,
+      "locations": [
+        {
+          "file": "atlas/routes.py",
+          "line": 11
+        }
+      ]
+    },
+    {
+      "source": "atlas.routes:get_item",
+      "target": "atlas.service:find_item",
+      "kind": "call",
+      "file": "atlas/routes.py",
+      "line": 16,
+      "locations": [
+        {
+          "file": "atlas/routes.py",
+          "line": 16
+        }
+      ]
+    },
+    {
+      "source": "atlas.routes:create_item",
+      "target": "atlas.service:save_item",
+      "kind": "call",
+      "file": "atlas/routes.py",
+      "line": 21,
+      "locations": [
+        {
+          "file": "atlas/routes.py",
+          "line": 21
+        }
+      ]
+    },
+    {
+      "source": "atlas.service:list_items",
+      "target": "atlas.repository:fetch_all",
+      "kind": "call",
+      "file": "atlas/service.py",
+      "line": 7,
+      "locations": [
+        {
+          "file": "atlas/service.py",
+          "line": 7
+        }
+      ]
+    },
+    {
+      "source": "atlas.service:find_item",
+      "target": "atlas.repository:fetch_all",
+      "kind": "call",
+      "file": "atlas/service.py",
+      "line": 11,
+      "locations": [
+        {
+          "file": "atlas/service.py",
+          "line": 11
+        }
+      ]
+    },
+    {
+      "source": "atlas.service:save_item",
+      "target": "atlas.repository:persist",
+      "kind": "call",
+      "file": "atlas/service.py",
+      "line": 14,
+      "locations": [
+        {
+          "file": "atlas/service.py",
+          "line": 14
+        }
+      ]
+    }
+  ],
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/health",
+      "owner": "atlas.main.app",
+      "symbol": "atlas.main:health",
+      "handler": "health",
+      "file": "atlas/main.py",
+      "line": 9,
+      "signature": "health() -> dict",
+      "docstring": "Return the service health status.",
+      "response_model": "",
+      "status_code": "200",
+      "mounted": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/items/",
+      "owner": "atlas.routes.router",
+      "symbol": "atlas.routes:get_items",
+      "handler": "get_items",
+      "file": "atlas/routes.py",
+      "line": 9,
+      "signature": "get_items(limit: int=20) -> list[Item]",
+      "docstring": "List inventory items with an optional result limit.",
+      "response_model": "list[Item]",
+      "status_code": "200",
+      "mounted": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/items/{item_id}",
+      "owner": "atlas.routes.router",
+      "symbol": "atlas.routes:get_item",
+      "handler": "get_item",
+      "file": "atlas/routes.py",
+      "line": 14,
+      "signature": "get_item(item_id: int) -> Item",
+      "docstring": "Look up one inventory item by its identifier.",
+      "response_model": "Item",
+      "status_code": "200",
+      "mounted": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/items/",
+      "owner": "atlas.routes.router",
+      "symbol": "atlas.routes:create_item",
+      "handler": "create_item",
+      "file": "atlas/routes.py",
+      "line": 19,
+      "signature": "create_item(item: Item) -> Item",
+      "docstring": "Create a new item and return the saved record.",
+      "response_model": "Item",
+      "status_code": "201",
+      "mounted": true
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/items/{item_id}",
+      "owner": "atlas.routes.router",
+      "symbol": "atlas.routes:delete_item",
+      "handler": "delete_item",
+      "file": "atlas/routes.py",
+      "line": 24,
+      "signature": "delete_item(item_id: int)",
+      "docstring": "",
+      "response_model": "",
+      "status_code": "204",
+      "mounted": true
+    }
+  ],
+  "findings": [
+    {
+      "kind": "missing_docstring",
+      "message": "persist has no docstring.",
+      "file": "atlas/repository.py",
+      "line": 9
+    },
+    {
+      "kind": "missing_docstring",
+      "message": "delete_item has no docstring.",
+      "file": "atlas/routes.py",
+      "line": 24
+    },
+    {
+      "kind": "missing_docstring",
+      "message": "save_item has no docstring.",
+      "file": "atlas/service.py",
+      "line": 13
+    },
+    {
+      "kind": "missing_docstring",
+      "message": "normalize_name has no docstring.",
+      "file": "atlas/service.py",
+      "line": 16
+    },
+    {
+      "kind": "import_cycle",
+      "message": "Circular import group: atlas.repository, atlas.service",
+      "file": "atlas/repository.py",
+      "line": 1
+    }
+  ],
+  "security_findings": [
+    {
+      "rule_id": "PYSEC002",
+      "title": "Dynamic code execution via eval()",
+      "severity": "High",
+      "confidence": "medium",
+      "line": 6,
+      "snippet": "return eval(expression)",
+      "risk": "eval() interprets a string as Python code. If that string can be influenced by untrusted input, arbitrary code may run.",
+      "remediation": "Avoid dynamic evaluation. Use explicit parsing, a dispatch table, or a restricted data format.",
+      "file": "atlas/security_examples.py"
+    },
+    {
+      "rule_id": "PYSEC005",
+      "title": "SQL query assembled dynamically",
+      "severity": "High",
+      "confidence": "medium",
+      "line": 11,
+      "snippet": "cursor.execute(f\"SELECT * FROM items WHERE name = '{name}'\")",
+      "risk": "SQL-looking text is combined with a dynamic expression before execution. This can create injection risk if the value is untrusted; its origin cannot be proven statically.",
+      "remediation": "Use parameterized queries for values. Allowlist identifiers that cannot be parameterized.",
+      "file": "atlas/security_examples.py"
+    }
+  ],
+  "cycles": [
+    [
+      "atlas.repository",
+      "atlas.service"
+    ]
+  ],
+  "stats": {
+    "modules": 7,
+    "symbols": 14,
+    "routes": 5,
+    "lines": 84,
+    "coverage": 81,
+    "missing_docstrings": 4
+  },
+  "limitations": [
+    "Static AST analysis only; source is never executed.",
+    "Dynamic imports, runtime route registration, re-exports, object-method dispatch, and conditional execution are not fully resolved.",
+    "Router mounting is resolved for direct imports and literal prefixes; unmounted routers are labeled.",
+    "Documentation describes source declarations; it is not a complete OpenAPI schema.",
+    "Security findings are conservative static patterns, not proof of exploitability or absence of vulnerabilities."
+  ],
+  "markdown": "# atlas-api — API documentation\n\n> Generated by AutoDoc AI using static Python AST analysis.\n\n## Summary\n\n- Modules: 7\n- Symbols: 14\n- Routes: 5\n- Lines: 84\n- Coverage: 81\n- Missing Docstrings: 4\n\n## API routes\n\n### GET /health\n\nHandler: health() -&gt; dict\n\nSource: atlas/main.py:9\n\nResponse model: Not declared · Status: 200\n\nMounted: yes\n\nReturn the service health status.\n\n### GET /api/v1/items/\n\nHandler: get_items(limit: int=20) -&gt; list[Item]\n\nSource: atlas/routes.py:9\n\nResponse model: list[Item] · Status: 200\n\nMounted: yes\n\nList inventory items with an optional result limit.\n\n### GET /api/v1/items/{item_id}\n\nHandler: get_item(item_id: int) -&gt; Item\n\nSource: atlas/routes.py:14\n\nResponse model: Item · Status: 200\n\nMounted: yes\n\nLook up one inventory item by its identifier.\n\n### POST /api/v1/items/\n\nHandler: create_item(item: Item) -&gt; Item\n\nSource: atlas/routes.py:19\n\nResponse model: Item · Status: 201\n\nMounted: yes\n\nCreate a new item and return the saved record.\n\n### DELETE /api/v1/items/{item_id}\n\nHandler: delete_item(item_id: int)\n\nSource: atlas/routes.py:24\n\nResponse model: Not declared · Status: 204\n\nMounted: yes\n\nNo docstring provided.\n\n## Modules and symbols\n\n### atlas\n\nAtlas: a small inventory service for the AutoDoc demo.\n\n### atlas.main\n\nHTTP application and service health.\n\n#### health() -&gt; dict\n\natlas/main.py:9\n\nReturn the service health status.\n\n### atlas.models\n\nDomain models for the inventory service.\n\n#### Item\n\natlas/models.py:4\n\nAn inventory item with its public display name.\n\n### atlas.repository\n\nIn-memory repository; imports deliberately demonstrate a cycle.\n\n#### fetch_all() -&gt; list[Item]\n\natlas/repository.py:5\n\nReturn a sample inventory record.\n\n#### persist(item: Item) -&gt; Item\n\natlas/repository.py:9\n\nNo docstring provided.\n\n### atlas.routes\n\nInventory routes exposed by the Atlas API.\n\n#### get_items(limit: int=20) -&gt; list[Item]\n\natlas/routes.py:9\n\nList inventory items with an optional result limit.\n\n#### get_item(item_id: int) -&gt; Item\n\natlas/routes.py:14\n\nLook up one inventory item by its identifier.\n\n#### create_item(item: Item) -&gt; Item\n\natlas/routes.py:19\n\nCreate a new item and return the saved record.\n\n#### delete_item(item_id: int)\n\natlas/routes.py:24\n\nNo docstring provided.\n\n### atlas.security_examples\n\nSynthetic unsafe-code patterns used to demonstrate the static security panel.\n\n#### evaluate_expression(expression: str)\n\natlas/security_examples.py:4\n\nIllustrate a dynamic evaluation pattern; the demo analyzer never calls this.\n\n#### find_item(cursor, name: str)\n\natlas/security_examples.py:9\n\nIllustrate SQL interpolation; the demo analyzer never calls this.\n\n### atlas.service\n\nInventory operations. The circular import is intentional for the demo.\n\n#### list_items(limit: int) -&gt; list[Item]\n\natlas/service.py:5\n\nReturn at most limit items.\n\n#### find_item(item_id: int) -&gt; Item\n\natlas/service.py:9\n\nFind an item in the local inventory.\n\n#### save_item(item: Item) -&gt; Item\n\natlas/service.py:13\n\nNo docstring provided.\n\n#### normalize_name(name: str) -&gt; str\n\natlas/service.py:16\n\nNo docstring provided.\n\n## Quality findings\n\n- atlas/repository.py:9 — persist has no docstring.\n- atlas/routes.py:24 — delete_item has no docstring.\n- atlas/service.py:13 — save_item has no docstring.\n- atlas/service.py:16 — normalize_name has no docstring.\n- atlas/repository.py:1 — Circular import group: atlas.repository, atlas.service\n\n## Security patterns (static heuristics)\n\n### High · PYSEC002 — Dynamic code execution via eval()\n\nSource: atlas/security_examples.py:6 · Confidence: medium\n\neval() interprets a string as Python code. If that string can be influenced by untrusted input, arbitrary code may run.\n\nSuggested remediation: Avoid dynamic evaluation. Use explicit parsing, a dispatch table, or a restricted data format.\n\n```python\nreturn eval(expression)\n```\n\n### High · PYSEC005 — SQL query assembled dynamically\n\nSource: atlas/security_examples.py:11 · Confidence: medium\n\nSQL-looking text is combined with a dynamic expression before execution. This can create injection risk if the value is untrusted; its origin cannot be proven statically.\n\nSuggested remediation: Use parameterized queries for values. Allowlist identifiers that cannot be parameterized.\n\n```python\ncursor.execute(f&quot;SELECT * FROM items WHERE name = &#x27;{name}&#x27;&quot;)\n```\n\n\n## Analysis boundaries\n\n- Static AST analysis only; source is never executed.\n- Dynamic imports, runtime route registration, re-exports, object-method dispatch, and conditional execution are not fully resolved.\n- Router mounting is resolved for direct imports and literal prefixes; unmounted routers are labeled.\n- Documentation describes source declarations; it is not a complete OpenAPI schema.\n- Security findings are conservative static patterns, not proof of exploitability or absence of vulnerabilities.\n"
+}
